@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -92,10 +93,30 @@ public class BasicItemController {
      * 따라서 이렇게하면 안돼고
      * redirectAttribute라는것을 사용해야 한다.
      */
-    @PostMapping("/add")
+//    @PostMapping("/add")
     public String saveV3(Item item){
         itemRepository.save(item);
         return "redirect:/basic/items/"+item.getId();
+    }
+
+    /**
+     * RedirectAttributes를 사용해서 addAttribute해준다면
+     * attributeName으로 value값이 들어가게 된다.
+     *
+     * 들어간 값을 view의 논리이름에 {itemId}
+     * 이렇게 해서 사용해줄 수도 있고
+     *
+     * 논리이름에 들어가지 않은 값은 쿼리 파라미터로 uri에들어간다.
+     * ?status=ture 요렇게
+     *
+     * 결론적으로 리다이렉트 결과 item메서드가 반환되게 된다.
+     */
+    @PostMapping("/add")
+    public String saveV4(Item item, RedirectAttributes redirectAttributes){
+        Item saveItem = itemRepository.save(item);
+        redirectAttributes.addAttribute("itemId",saveItem.getId());
+        redirectAttributes.addAttribute("status",true);
+        return "redirect:/basic/items/{itemId}";
     }
 
     @GetMapping("/{itemId}/edit")
